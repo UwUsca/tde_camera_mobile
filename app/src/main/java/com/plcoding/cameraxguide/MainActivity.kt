@@ -56,6 +56,7 @@ import android.provider.MediaStore
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import android.graphics.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -139,6 +140,48 @@ class MainActivity : ComponentActivity() {
                             }
                             IconButton(
                                 onClick = {
+                                    takeGrayScalePhoto(
+                                        controller = controller,
+                                        onPhotoTaken = viewModel::onTakeGreyScalePhoto
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PhotoCamera,
+                                    contentDescription = "Take grey photo"
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    takeSepiaPhoto(
+                                        controller = controller,
+                                        onPhotoTaken = viewModel::onTakeSepyaPhoto
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PhotoCamera,
+                                    contentDescription = "Take grey photo"
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    takeNegativePhoto(
+                                        controller = controller,
+                                        onPhotoTaken = viewModel::onTakeNegativePhoto
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PhotoCamera,
+                                    contentDescription = "Take grey photo"
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
                                     takePhoto(
                                         controller = controller,
                                         onPhotoTaken = viewModel::onTakePhoto
@@ -190,6 +233,163 @@ class MainActivity : ComponentActivity() {
             }
         )
     }
+
+    private fun takeSepiaPhoto(
+        controller: LifecycleCameraController,
+        onPhotoTaken: (Bitmap) -> Unit
+    ) {
+        controller.takePicture(
+            ContextCompat.getMainExecutor(applicationContext),
+            object : OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    super.onCaptureSuccess(image)
+
+                    val matrix = Matrix().apply {
+                        postRotate(image.imageInfo.rotationDegrees.toFloat())
+                    }
+                    val originalBitmap = image.toBitmap()
+                    val sepiaBitmap = applySepiaFilter(originalBitmap)
+                    val rotatedSepiaBitmap = Bitmap.createBitmap(
+                        sepiaBitmap,
+                        0,
+                        0,
+                        sepiaBitmap.width,
+                        sepiaBitmap.height,
+                        matrix,
+                        true
+                    )
+                    saveImageToGallery(applicationContext, rotatedSepiaBitmap, "Sepia_Photo_${System.currentTimeMillis()}", "Photo taken by CameraXGuide")
+                    onPhotoTaken(rotatedSepiaBitmap)
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    super.onError(exception)
+                    Log.e("Camera", "Couldn't take photo: ", exception)
+                }
+            }
+        )
+    }
+
+    private fun takeNegativePhoto(
+        controller: LifecycleCameraController,
+        onPhotoTaken: (Bitmap) -> Unit
+    ) {
+        controller.takePicture(
+            ContextCompat.getMainExecutor(applicationContext),
+            object : OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    super.onCaptureSuccess(image)
+
+                    val matrix = Matrix().apply {
+                        postRotate(image.imageInfo.rotationDegrees.toFloat())
+                    }
+                    val originalBitmap = image.toBitmap()
+                    val negativeBitmap = applyNegativeFilter(originalBitmap)
+                    val rotatedNegativeBitmap = Bitmap.createBitmap(
+                        negativeBitmap,
+                        0,
+                        0,
+                        negativeBitmap.width,
+                        negativeBitmap.height,
+                        matrix,
+                        true
+                    )
+                    saveImageToGallery(applicationContext, rotatedNegativeBitmap, "Negative_Photo_${System.currentTimeMillis()}", "Photo taken by CameraXGuide")
+                    onPhotoTaken(rotatedNegativeBitmap)
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    super.onError(exception)
+                    Log.e("Camera", "Couldn't take photo: ", exception)
+                }
+            }
+        )
+    }
+
+    private fun takeGrayScalePhoto(
+        controller: LifecycleCameraController,
+        onPhotoTaken: (Bitmap) -> Unit
+    ) {
+        controller.takePicture(
+            ContextCompat.getMainExecutor(applicationContext),
+            object : OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    super.onCaptureSuccess(image)
+
+                    val matrix = Matrix().apply {
+                        postRotate(image.imageInfo.rotationDegrees.toFloat())
+                    }
+                    val originalBitmap = image.toBitmap()
+                    val grayBitmap = convertToGrayScale(originalBitmap) // Converte para tons de cinza
+                    val rotatedGrayBitmap = Bitmap.createBitmap(
+                        grayBitmap,
+                        0,
+                        0,
+                        grayBitmap.width,
+                        grayBitmap.height,
+                        matrix,
+                        true
+                    )
+                    saveImageToGallery(applicationContext, rotatedGrayBitmap, "Gray_Photo_${System.currentTimeMillis()}", "Photo taken by CameraXGuide")
+                    onPhotoTaken(rotatedGrayBitmap)
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    super.onError(exception)
+                    Log.e("Camera", "Couldn't take photo: ", exception)
+                }
+            }
+        )
+    }
+
+    private fun applySepiaFilter(originalBitmap: Bitmap): Bitmap {
+        val width = originalBitmap.width
+        val height = originalBitmap.height
+        val sepiaMatrix = ColorMatrix(floatArrayOf(
+            0.393f, 0.769f, 0.189f, 0f, 0f,
+            0.349f, 0.686f, 0.168f, 0f, 0f,
+            0.272f, 0.534f, 0.131f, 0f, 0f,
+            0f, 0f, 0f, 1f, 0f
+        ))
+        val sepiaFilter = ColorMatrixColorFilter(sepiaMatrix)
+        val paint = Paint().apply {
+            colorFilter = sepiaFilter
+        }
+        val sepiaBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(sepiaBitmap)
+        canvas.drawBitmap(originalBitmap, 0f, 0f, paint)
+        return sepiaBitmap
+    }
+
+    private fun applyNegativeFilter(originalBitmap: Bitmap): Bitmap {
+        val width = originalBitmap.width
+        val height = originalBitmap.height
+        val negativeMatrix = ColorMatrix(floatArrayOf(
+            -1f, 0f, 0f, 0f, 255f,
+            0f, -1f, 0f, 0f, 255f,
+            0f, 0f, -1f, 0f, 255f,
+            0f, 0f, 0f, 1f, 0f
+        ))
+        val negativeFilter = ColorMatrixColorFilter(negativeMatrix)
+        val paint = Paint().apply {
+            colorFilter = negativeFilter
+        }
+        val negativeBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(negativeBitmap)
+        canvas.drawBitmap(originalBitmap, 0f, 0f, paint)
+        return negativeBitmap
+    }
+
+    private fun convertToGrayScale(originalBitmap: Bitmap): Bitmap {
+        val grayBitmap = Bitmap.createBitmap(originalBitmap.width, originalBitmap.height, Bitmap.Config.RGB_565)
+        val canvas = Canvas(grayBitmap)
+        val paint = Paint().apply {
+            colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) }) // Define a saturação como 0 para converter em tons de cinza
+        }
+        canvas.drawBitmap(originalBitmap, 0f, 0f, paint)
+        return grayBitmap
+    }
+
 
     private fun saveImageToGallery(context: Context, bitmap: Bitmap, title: String, description: String) {
         val fileName = "${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.jpg"

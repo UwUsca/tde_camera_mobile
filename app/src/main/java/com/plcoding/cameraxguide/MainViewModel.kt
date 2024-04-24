@@ -13,4 +13,16 @@ class MainViewModel: ViewModel() {
     fun onTakePhoto(bitmap: Bitmap) {
         _bitmaps.value += bitmap
     }
+
+    fun onTakeGreyScalePhoto(bitmap: Bitmap) {
+        _bitmaps.value += bitmap
+    }
+
+    fun onTakeSepyaPhoto(bitmap: Bitmap) {
+        _bitmaps.value += bitmap
+    }
+
+    fun onTakeNegativePhoto(bitmap: Bitmap) {
+        _bitmaps.value += bitmap
+    }
 }
