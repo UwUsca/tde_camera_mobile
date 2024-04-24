@@ -24,9 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cameraswitch
-import androidx.compose.material.icons.filled.Photo
-import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -57,6 +54,7 @@ import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import android.graphics.*
+import androidx.compose.material.icons.filled.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -147,7 +145,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.PhotoCamera,
+                                    imageVector = Icons.Default.FilterBAndW,
                                     contentDescription = "Take grey photo"
                                 )
                             }
@@ -161,8 +159,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.PhotoCamera,
-                                    contentDescription = "Take grey photo"
+                                    imageVector = Icons.Default.InvertColors,
+                                    contentDescription = "Take sepya photo"
                                 )
                             }
 
@@ -175,8 +173,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.PhotoCamera,
-                                    contentDescription = "Take grey photo"
+                                    imageVector = Icons.Default.Compare,
+                                    contentDescription = "Take negative photo"
                                 )
                             }
 
